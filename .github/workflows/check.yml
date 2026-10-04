@@ -15,4 +15,4 @@ jobs:
           node-version: "24"
       - run: python tools/check.py
       - run: python -m pytest tests/test_site.py -q
-      - run: node --test tests/nbs_engine.test.js
+      - run: node --test 'tests/*.test.js'

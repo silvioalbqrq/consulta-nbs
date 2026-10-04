@@ -43,7 +43,8 @@ def test_aba_anexo_viii():
     t = read(INDEX)
     assert "painel-anexo" in t, "painel do Anexo VIII ausente"
     assert "tablist" in t, "abas NBS / Anexo VIII ausentes"
-    assert 'src="anexo-data.js"' in t, "anexo-data.js nao referenciado"
+    assert "anexo-data.js" in t, "carga do anexo-data.js ausente"
+    assert 'src="anexo-data.js"' not in t, "anexo deve ser lazy-load, sem script estatico"
     a = read(ROOT / "anexo-data.js")
     m = re.search(r"window\.ANEXO_DATA = (\[.*?\]);", a, re.S)
     assert m, "ANEXO_DATA nao encontrado"
@@ -56,3 +57,18 @@ def test_aba_anexo_viii():
 def test_check_e_workflow():
     assert CHECK.exists(), "tools/check.py ausente"
     assert WORKFLOW.exists(), ".github/workflows/check.yml ausente"
+
+
+def test_engine_moderno_sem_var():
+    import re as _re
+    t = read(ENGINE)
+    assert _re.search(r"\bvar\b", t) is None, "nbs.js ainda usa var"
+    assert _re.search(r"(?<![=!])==(?!=)", t) is None, "nbs.js deve usar ==="
+    assert _re.search(r"!=(?!=)", t) is None, "nbs.js deve usar !=="
+
+
+def test_modo_somente_inicio():
+    t = read(INDEX)
+    assert 'id="prefixo"' in t and 'id="prefixo2"' in t, "checkbox Somente inicio ausente"
+    assert "prefixCheckId" in t, "engine nao ligado ao checkbox"
+    assert "highlightBest" in t, "destaque dirigido ausente"

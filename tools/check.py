@@ -30,6 +30,9 @@ check("engine compartilhado", 'src="nbs.js"' in idx and (ROOT / "nbs.js").exists
 check("escapeHtml no highlight", "escapeHtml" in (ROOT / "nbs.js").read_text(encoding="utf-8"))
 check("debounce ~150ms", re.search(r"150", (ROOT / "nbs.js").read_text(encoding="utf-8")) is not None)
 check("abas NBS/Anexo", 'role="tablist"' in idx and "painel-anexo" in idx)
+check("anexo lazy-load", "anexo-data.js" in idx and 'src="anexo-data.js"' not in idx)
+check("destaque dirigido", "highlightBest" in idx)
+check("modo somente-inicio", 'id="prefixo"' in idx and 'id="prefixo2"' in idx)
 
 nbs = load_json_array(ROOT / "nbs-data.js", "window.NBS_DATA")
 check("NBS 1237 registros", isinstance(nbs, list) and len(nbs) == 1237, str(len(nbs) if nbs else 0))

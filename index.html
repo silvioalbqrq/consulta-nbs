@@ -41,7 +41,7 @@ mark{background:var(--mark)}.pages{display:flex;gap:8px;justify-content:center;p
 <nav class="tabs" aria-label="Visoes"><div id="abas" role="tablist" aria-label="Bases de consulta" style="display:flex;gap:8px;flex-wrap:wrap">
 <button class="tab" role="tab" id="aba-nbs" aria-selected="true" aria-controls="painel-nbs">NBS 2.0</button>
 <button class="tab" role="tab" id="aba-anexo" aria-selected="false" aria-controls="painel-anexo">Anexo VIII (LC 116 / INDOP / cClassTrib)</button>
-</div><span style="flex:1"></span><button class="btn primary" id="tema" type="button" aria-pressed="false">Tema escuro</button></nav><section id="painel-nbs" role="tabpanel" aria-labelledby="aba-nbs"><div class="toolbar" role="search" aria-label="Filtros"><div class="field"><label for="q">Localizar serviço</label><div class="row"><input type="search" id="q" placeholder="Ex.: construção, 1.1502, topografia" autocomplete="off"><select id="campo" aria-label="Campo de busca"><option value="all">Código + Descrição</option><option value="code">Somente código</option><option value="desc">Somente descrição</option></select><button class="btn" id="limpar" type="button">Limpar</button></div></div></div><div class="status"><span id="resultCount" role="status" aria-live="polite">1237 resultados</span><span><button class="btn" id="ordCode" type="button">Ordenar: código</button> <button class="btn" id="ordDesc" type="button">Ordenar: descrição</button></span></div><div class="table-wrap"><table id="tabela"><caption>Códigos NBS 2.0 e descrições oficiais.</caption><thead><tr><th scope="col">Código NBS 2.0</th><th scope="col">Descrição do serviço</th></tr></thead><tbody id="corpo"><tr><td><span class="code-cell">1.01</span></td><td>SERVIÇOS DE CONSTRUÇÃO</td></tr>
+</div><span style="flex:1"></span><button class="btn primary" id="tema" type="button" aria-pressed="false">Tema escuro</button></nav><section id="painel-nbs" role="tabpanel" aria-labelledby="aba-nbs"><div class="toolbar" role="search" aria-label="Filtros"><div class="field"><label for="q">Localizar serviço</label><div class="row"><input type="search" id="q" placeholder="Ex.: construção, 1.1502, topografia" autocomplete="off"><select id="campo" aria-label="Campo de busca"><option value="all">Código + Descrição</option><option value="code">Somente código</option><option value="desc">Somente descrição</option></select><label style="font-size:.8rem;display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="prefixo"> Somente início</label><button class="btn" id="limpar" type="button">Limpar</button></div></div></div><div class="status"><span id="resultCount" role="status" aria-live="polite">1237 resultados</span><span><button class="btn" id="ordCode" type="button">Ordenar: código</button> <button class="btn" id="ordDesc" type="button">Ordenar: descrição</button></span></div><div class="table-wrap"><table id="tabela"><caption>Códigos NBS 2.0 e descrições oficiais.</caption><thead><tr><th scope="col">Código NBS 2.0</th><th scope="col">Descrição do serviço</th></tr></thead><tbody id="corpo"><tr><td><span class="code-cell">1.01</span></td><td>SERVIÇOS DE CONSTRUÇÃO</td></tr>
 <tr><td><span class="code-cell">1.0101</span></td><td>Serviços de construção de edificações</td></tr>
 <tr><td><span class="code-cell">1.0101.1</span></td><td>Serviços de construção de edificações residenciais</td></tr>
 <tr><td><span class="code-cell">1.0101.11.00</span></td><td>Serviços de construção de edificações residenciais de um e dois pavimentos</td></tr>
@@ -69,7 +69,7 @@ mark{background:var(--mark)}.pages{display:flex;gap:8px;justify-content:center;p
 <div class="toolbar" role="search" aria-label="Filtros do Anexo VIII"><div class="field"><label for="q2">Localizar (item, NBS, INDOP, cClassTrib)</label>
 <div class="row"><input type="search" id="q2" placeholder="Ex.: 17.09, 1.1404, 100301, 200038" autocomplete="off">
 <select id="campo2" aria-label="Campo de busca"><option value="all">Todos os campos</option><option value="code">Item / NBS / INDOP / cClassTrib</option><option value="desc">Descrições</option></select>
-<button class="btn" id="limpar2" type="button">Limpar</button></div></div></div>
+<label style="font-size:.8rem;display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="prefixo2"> Somente início</label><button class="btn" id="limpar2" type="button">Limpar</button></div></div></div>
 <div class="status"><span id="resultCount2" role="status" aria-live="polite">1.739 resultados</span>
 <span><button class="btn" id="ordCode2" type="button">Ordenar: item/NBS</button>
 <button class="btn" id="ordDesc2" type="button">Ordenar: descrição</button></span></div>
@@ -79,15 +79,25 @@ mark{background:var(--mark)}.pages{display:flex;gap:8px;justify-content:center;p
 <div class="pages" id="pags2" aria-label="Paginação do Anexo VIII"></div>
 </section><footer>Fonte: NBS 2.0 (Lista de Serviços Nacional / SNNFSe). Este painel <strong>não substitui</strong> o Anexo VIII (<code>CorrelacaoItemNBSIndOpCClassTrib_IBSCBS</code>). Divergências conhecidas v1.00.00: <code>1.0505.10.00</code>, <code>1.1404.41.00</code>, <code>1.1404.49.00</code>.<noscript><br>Sem JavaScript: primeira página exibida; ative para busca e paginação.</noscript></footer></div><script src="nbs.js" defer></script>
 <script src="nbs-data.js" defer></script>
-<script src="anexo-data.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   var DADOS = window.NBS_DATA || []; document.getElementById('totalRecords').textContent = DADOS.length;
   NBS.initTheme('tema', 'nbs-tema-b');
-  NBS.initTabs('abas');
+  var anexoPronto = false;
+  function initAnexo() {
+    if (anexoPronto) return; anexoPronto = true;
+    var s = document.createElement('script');
+    s.src = 'anexo-data.js'; s.defer = true;
+    s.onload = montarAnexo;
+    s.onerror = function () {
+      document.getElementById('corpo2').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:36px">Falha ao carregar o Anexo VIII. Recarregue a página.</td></tr>';
+    };
+    document.head.appendChild(s);
+  }
+  NBS.initTabs('abas', function (id) { if (id === 'aba-anexo') initAnexo(); });
   NBS.initTable({
     data: DADOS, perPage: 22, cols: 2,
-    tbodyId: 'corpo', qId: 'q', fieldId: 'campo', clearId: 'limpar',
+    tbodyId: 'corpo', qId: 'q', fieldId: 'campo', clearId: 'limpar', prefixCheckId: 'prefixo',
     resultId: 'resultCount', pagesId: 'pags', sortCodeId: 'ordCode', sortDescId: 'ordDesc',
     codeText: function (r) { return [[r.code, 0]]; },
     restText: function (r) { return r.desc; },
@@ -95,12 +105,13 @@ document.addEventListener('DOMContentLoaded', function () {
     rowHtml: function (r, term, mode) {
       var c = r.code, d = r.desc;
       if (term) {
-        if (mode !== 'desc') c = NBS.highlight(c, term, mode);
-        if (mode !== 'code') d = NBS.highlight(d, term, mode);
+        if (mode !== 'desc') c = NBS.highlightBest(c, term);
+        if (mode !== 'code') d = NBS.highlightBest(d, term);
       }
       return '<tr><td><span class="code-cell">' + c + '</span></td><td>' + d + '</td></tr>';
     }
   });
+  function montarAnexo() {
   var AX = (window.ANEXO_DATA || []).map(function (a) {
     return { item: a[0] || '', itemDesc: a[1] || '', nbs: a[2] || '', nbsDesc: a[3] || '',
       indop: String(a[6] == null ? '' : a[6]), local: a[7] || '',
@@ -108,13 +119,13 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   NBS.initTable({
     data: AX, perPage: 22, cols: 5,
-    tbodyId: 'corpo2', qId: 'q2', fieldId: 'campo2', clearId: 'limpar2',
+    tbodyId: 'corpo2', qId: 'q2', fieldId: 'campo2', clearId: 'limpar2', prefixCheckId: 'prefixo2',
     resultId: 'resultCount2', pagesId: 'pags2', sortCodeId: 'ordCode2', sortDescId: 'ordDesc2',
     codeText: function (r) { return [[r.item, 0], [r.nbs, 1], [r.indop, 2], [r.cclass, 3]]; },
     restText: function (r) { return (r.nbsDesc + ' ' + r.cclassNome + ' ' + r.itemDesc); },
     sortVal: function (r, o) { return o === 'code' ? (r.item + ' ' + r.nbs) : r.nbsDesc; },
     rowHtml: function (r, term) {
-      function H(x) { return term ? NBS.highlight(x, term) : NBS.escapeHtml(x); }
+      function H(x) { return term ? NBS.highlightBest(x, term) : NBS.escapeHtml(x); }
       return '<tr><td><span class="code-cell">' + H(r.item) + '</span></td>'
         + '<td><span class="code-cell">' + H(r.nbs || '\u2014') + '</span></td>'
         + '<td title="' + NBS.escapeHtml(r.local) + '">' + H(r.nbsDesc) + '</td>'
@@ -123,5 +134,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   document.getElementById('resultCount2').textContent = AX.length + ' resultados';
+  }
 });
 </script></body></html>

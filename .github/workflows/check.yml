@@ -14,5 +14,6 @@ jobs:
         with:
           node-version: "24"
       - run: python tools/check.py
-      - run: python -m pytest tests/test_site.py -q
+      - run: pip install pytest
+      - run: python -m pytest tests/ -q
       - run: node --test 'tests/*.test.js'

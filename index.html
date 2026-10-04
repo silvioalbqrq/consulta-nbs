@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
     data: DADOS, perPage: 22, cols: 2,
     tbodyId: 'corpo', qId: 'q', fieldId: 'campo', clearId: 'limpar',
     resultId: 'resultCount', pagesId: 'pags', sortCodeId: 'ordCode', sortDescId: 'ordDesc',
-    pick: function (r) { return [r.code, r.desc]; },
+    codeText: function (r) { return [[r.code, 0]]; },
+    restText: function (r) { return r.desc; },
     sortVal: function (r, o) { return o === 'code' ? r.code : r.desc; },
     rowHtml: function (r, term, mode) {
       var c = r.code, d = r.desc;
@@ -109,7 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
     data: AX, perPage: 22, cols: 5,
     tbodyId: 'corpo2', qId: 'q2', fieldId: 'campo2', clearId: 'limpar2',
     resultId: 'resultCount2', pagesId: 'pags2', sortCodeId: 'ordCode2', sortDescId: 'ordDesc2',
-    pick: function (r) { return [(r.item + ' ' + r.nbs + ' ' + r.indop + ' ' + r.cclass), (r.nbsDesc + ' ' + r.cclassNome + ' ' + r.itemDesc)]; },
+    codeText: function (r) { return [[r.item, 0], [r.nbs, 1], [r.indop, 2], [r.cclass, 3]]; },
+    restText: function (r) { return (r.nbsDesc + ' ' + r.cclassNome + ' ' + r.itemDesc); },
     sortVal: function (r, o) { return o === 'code' ? (r.item + ' ' + r.nbs) : r.nbsDesc; },
     rowHtml: function (r, term) {
       function H(x) { return term ? NBS.highlight(x, term) : NBS.escapeHtml(x); }

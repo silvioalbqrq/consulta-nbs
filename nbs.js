@@ -38,8 +38,46 @@
     });
   }
 
-  function paginate(rows, page, perPage) {
-    var totalPages = Math.max(1, Math.ceil(rows.length / perPage));
+  // 0 = campo comeca pelo termo · 1 = segmento exato ou comeco de segmento · 2 = substring · 3 = sem match.
+  function codeScore(code, term) {
+    var c = String(code == null ? '' : code).toLowerCase();
+    var t = String(term || '').trim().toLowerCase();
+    if (!t) return 0;
+    if (c === t) return 0;
+    var flat = c.replace(/[^a-z0-9]/g, '');
+    var tf = t.replace(/[^a-z0-9]/g, '');
+    if (!tf) return 3;
+    if (flat.indexOf(tf) === 0) return 0;
+    var segs = c.split(/[^a-z0-9]+/), i;
+    for (i = 0; i < segs.length; i++) {
+      if (segs[i] === tf || segs[i].indexOf(tf) === 0) return 1;
+    }
+    if (flat.indexOf(tf) !== -1) return 2;
+    return 3;
+  }
+
+  // fieldsFn(r) -> texto OU [[texto, pesoCampo], ...]. Peso: Item=0, NBS=1, INDOP=2, cClass=3.
+  function filterAndRank(records, term, fieldsFn) {
+    var t = String(term || '').trim();
+    if (!t) return records.slice();
+    var scored = [];
+    records.forEach(function (r, i) {
+      var f = fieldsFn(r);
+      if (typeof f === 'string') f = [[f, 1]];
+      var best = null, k;
+      for (k = 0; k < f.length; k++) {
+        var s = codeScore(f[k][0], t);
+        if (s < 3 && (best === null || s < best[0] || (s === best[0] && f[k][1] < best[1]))) {
+          best = [s, f[k][1]];
+        }
+      }
+      if (best !== null) scored.push([best[0], best[1], i, r]);
+    });
+    scored.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1] || a[2] - b[2]; });
+    return scored.map(function (x) { return x[3]; });
+  }
+
+  function paginate(rows, page, perPage) {    var totalPages = Math.max(1, Math.ceil(rows.length / perPage));
     var p = Math.min(Math.max(1, page), totalPages);
     return { page: rows.slice((p - 1) * perPage, p * perPage), totalPages: totalPages, current: p };
   }
@@ -71,8 +109,25 @@
       });
       return arr;
     }
+    function currentList() {
+      var term = q.value.trim(), mode = field.value;
+      if (mode === 'desc') {
+        return filterRecords(data, term, 'desc', function (r) { return ['', cfg.restText(r)]; });
+      }
+      var ranked = filterAndRank(data, term, cfg.codeText);
+      if (mode === 'code') return ranked;
+      var inList = {}, extra;
+      if (typeof Set !== 'undefined') {
+        var set = new Set(ranked);
+        extra = filterRecords(data, term, 'desc', function (r) { return ['', cfg.restText(r)]; })
+          .filter(function (r) { return !set.has(r); });
+      } else {
+        extra = [];
+      }
+      return ranked.concat(extra);
+    }
     function render() {
-      var f = sorted(filterRecords(data, q.value, field.value, cfg.pick));
+      var f = sorted(currentList());
       var pg = paginate(f, page, PER);
       page = pg.current;
       var term = q.value.trim(), mode = field.value;
@@ -145,7 +200,8 @@
 
   return {
     escapeHtml: escapeHtml, highlight: highlight,
-    filterRecords: filterRecords, paginate: paginate, debounce: debounce,
+    filterRecords: filterRecords, filterAndRank: filterAndRank, codeScore: codeScore,
+    paginate: paginate, debounce: debounce,
     initTable: initTable, initTheme: initTheme, initTabs: initTabs
   };
 }));

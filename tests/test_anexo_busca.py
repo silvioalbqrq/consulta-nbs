@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-R = Path(r'C:\Users\Acer Aspire 5\AppData\Local\Temp\opencode\consulta-nbs-repo')
+R = Path(__file__).resolve().parent.parent
 
 
 def test_toolbar_nbs_dentro_do_painel():
